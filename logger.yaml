@@ -1,0 +1,21 @@
+---
+loggers:
+    file:
+        class: file
+        filename: mt.log
+        #1MB
+        size: 1048576
+        max: 6
+types:
+    info:
+        logger: file
+    warning:
+        logger: file
+    error:
+        logger: file
+    security:
+        logger: file
+    debug:
+        logger: file
+    trace:
+        logger: file

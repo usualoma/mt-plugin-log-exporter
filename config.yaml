@@ -1,0 +1,22 @@
+#plugin information
+id: LogExporter
+name: LogExporter
+version: 0.1.0
+
+#about this plugin
+description: <__trans phrase="Export Movable Types Log">
+author_name: <__trans phrase="toi-planning">
+author_link: http://tec.toi-planning.net/
+plugin_link: http://tec.toi-planning.net/mt/log_exporter/
+doc_link: http://tec.toi-planning.net/mt/log_exporter/manual
+
+#Localization
+l10n_class: LogExporter::L10N
+
+tags:
+    function:
+        Log: $LogExporter::LogExporter::_hdlr_log
+
+callbacks:
+    MT::Log::post_save: $LogExporter::LogExporter::log_post_save
+    take_down: $LogExporter::LogExporter::take_down
