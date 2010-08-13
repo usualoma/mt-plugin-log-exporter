@@ -8,6 +8,8 @@ use vars qw( %Lexicon );
 
 %Lexicon = (
 	'toi-planning' => 'ToI企画',
+	'LogExporterViewMenuLabel' => 'ログビューワー',
+	'LogExporter Viewer' => 'ログビューワー',
 );
 
 1;

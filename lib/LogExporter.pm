@@ -69,7 +69,10 @@ sub loggers {
 		MT->request('log_exporter_loggers', $loggers);
 	}
 
-	if (my $data = $loggers->{types}{$type}) {
+	if (! $type) {
+		return $loggers->{'loggers'};
+	}
+	elsif (my $data = $loggers->{types}{$type}) {
 		my $logger   = $loggers->{'loggers'}{$data->{logger}};
 
 		return $logger;
@@ -79,18 +82,25 @@ sub loggers {
 	}
 }
 
+sub filename {
+	my ($filename) = @_;
+
+	if ($filename !~ m{\A/}) {
+		$filename = File::Spec->catfile(
+			&plugin->{full_path}, 'log', $filename
+		);
+	}
+
+	$filename;
+}
+
 sub log_handle {
 	my ($type) = @_;
 
 	my $logger = &loggers($type);
 
 	if ($logger) {
-		my $filename = $logger->{filename};
-		if ($filename !~ m{\A/}) {
-			$filename = File::Spec->catfile(
-				&plugin->{full_path}, 'log', $filename
-			);
-		}
+		my $filename = &filename($logger->{filename});
 
 		my $handles = MT->request('log_exporter_handles') || {};
 		my $fh = $handles->{$filename};
@@ -184,6 +194,28 @@ sub _hdlr_log {
 	MT->instance->log($value);
 
 	'';
+}
+
+
+sub viewer {
+    my $app = shift;
+
+	my $loggers = &loggers;
+	my $logger  = $loggers->{(keys(%$loggers))[0]};
+	my $filename = &filename($logger->{filename});
+
+    my $server_path = $app->server_path() || "";
+	my $cfg = $app->config;
+    my $cgi_path = $cfg->CGIPath;
+	$filename =~ s{$server_path}{$cgi_path};
+
+	MT->log($filename);
+
+	my %param = (
+		filename => $filename,
+	);
+
+    plugin->load_tmpl('log_exporter_viewer.tmpl', \%param);
 }
 
 1;

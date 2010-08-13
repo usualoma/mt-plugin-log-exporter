@@ -1,0 +1,82 @@
+<mt:setvar name="page_title" value="<__trans phrase="LogExporter Viewer">">
+
+<$mt:include name="include/header.tmpl"$>
+
+<ul id="logs">
+</ul>
+
+<script type="text/javascript">
+jQuery(function($) {
+	var ul = $('#logs');
+	var ul_elm = ul.get(0);
+	var filename = '<mt:Var name="filename" />';
+	var max_child = 200;
+	var offset   = 0;
+	var colors = {
+		'info': {
+			'color': '#ff0',
+			'background': '#000'
+		},
+		'warning': {
+			'color': '#f00',
+			'background': '#fff'
+		},
+		'error': {
+			'color': '#f00',
+			'background': '#fff'
+		},
+		'security': {
+			'color': '#f0f',
+			'background': '#000'
+		},
+		'debug': {
+			'color': '#0f0',
+			'background': '#fff'
+		},
+		'trace': {
+			'color': '#00f',
+			'background': '#fff'
+		}
+	};
+
+	var colors_compiled = {};
+	$.each(colors, function(k, v) {
+		colors_compiled['^\\[' + k + '\\]'] =
+			'<span style="background: '+ v['background'] +
+			';color:' + v['color'] + '">[' + k + ']</span>';
+	});
+
+	function update() {
+		$.get(filename, function(data) {
+			if (offset != 0 && offset != data.length) {
+				if (offset > data.length) {
+					offset = 0;
+				}
+				var updates = data.substring(offset).split("\n");
+				$.each(updates, function() {
+					var message = $.trim(this);
+					if (message) {
+						$.each(colors_compiled, function(k, v) {
+							message = message.replace(RegExp(k), v);
+						});
+
+						ul.prepend('<li>' + message + '</li>');
+					}
+				});
+
+				if (ul_elm.childNodes.length > max_child) {
+					for (var i = ul_elm.childNodes.length-1; i >= max_child; i--) {
+						ul_elm.removeChild(ul_elm.childNodes[i]);
+					}
+				}
+			}
+
+			offset = data.length;
+			setTimeout(update, 1000);
+		});
+	}
+	update();
+});
+</script>
+
+<$mt:include name="include/footer.tmpl"$>

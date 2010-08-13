@@ -17,6 +17,19 @@ tags:
     function:
         Log: $LogExporter::LogExporter::_hdlr_log
 
+applications:
+    cms:
+        methods:
+            log_exporter_viewer: $LogExporter::LogExporter::viewer
+        menus:
+            tools:log_exporter_viewer:
+                order: 10000
+                label: LogExporterViewMenuLabel
+                mode: log_exporter_viewer
+                view:
+                    - system
+                display: 1
+
 callbacks:
     MT::Log::post_save: $LogExporter::LogExporter::log_post_save
     take_down: $LogExporter::LogExporter::take_down

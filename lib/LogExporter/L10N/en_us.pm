@@ -5,6 +5,11 @@ use warnings;
 
 use base 'LogExporter::L10N';
 use vars qw( %Lexicon );
-%Lexicon = ();
+
+%Lexicon = (
+	'toi-planning' => 'ToI Inc.',
+	'LogExporterViewMenuLabel' => 'Log Viewer',
+	'LogExporter Viewer' => 'Log Viewer',
+);
 
 1;
