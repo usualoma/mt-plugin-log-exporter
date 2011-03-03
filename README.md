@@ -8,6 +8,11 @@ Export activity log, query log and warnings
 * Rotate logfile.
 * Show logfile using browser.
 
+## INSTRATION
+
+* Upload plugin files.
+* Update permission. (e.g. chmod 777 /path/to/mt/plugins/LogExporter/log)
+
 ## SETTINGS
 	cat logger.yaml
 	---
