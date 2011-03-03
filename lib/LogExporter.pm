@@ -1,4 +1,4 @@
-# Copyright (c) 2010 ToI Inc, All rights reserved.
+# Copyright (c) 2011 ToI Inc, All rights reserved.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -55,9 +55,7 @@ use warnings;
 
 use Data::Dumper;
 use File::Spec;
-
-eval "use Term::ANSIColor";
-my $has_ansi_color = ! $@;
+use Term::ANSIColor;
 
 our %types = qw(
 	info     1
@@ -156,9 +154,9 @@ sub append_log {
 
 		print($fh '[', $type, '] ');
 
-		print($fh color(@$colors)) if $has_ansi_color && $colors;
+		print($fh color(@$colors)) if $colors;
         print($fh $message, "\n");
-		print($fh color('reset')) if $has_ansi_color && $colors;
+		print($fh color('reset')) if $colors;
 
 		close($fh)
 			or die $!;
