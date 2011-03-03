@@ -22,17 +22,30 @@
 
 package MT;
 use Data::Dumper;
+use B::Deparse;
 
 sub dumper {
 	my ($self) = @_;
 	$self->log(Dumper($_[1]));
 }
 
+sub c2t {
+	my ($self) = @_;
+	my $bd = B::Deparse->new;
+	$self->log($bd->coderef2text($_[1]));
+}
+
 package LE;
 use Data::Dumper;
+use B::Deparse;
 
 sub dumper {
 	MT->instance->log(Dumper($_[1]));
+}
+
+sub c2t {
+	my $bd = B::Deparse->new;
+	MT->instance->log($bd->coderef2text($_[1]));
 }
 
 package LogExporter;
@@ -50,6 +63,11 @@ our %types = qw(
 	security 8
 	debug    16
 );
+
+sub init_app {
+    $Data::ObjectDriver::PROFILE = 1;
+    $Data::ObjectDriver::PROFILE;
+}
 
 sub plugin {
 	MT->component('LogExporter');
@@ -157,8 +175,12 @@ sub append_log {
 sub take_down {
 	my $app = MT->instance;
 
+    foreach my $query (@{ Data::ObjectDriver->profiler->query_log }) {
+        &append_log('query', $query);
+    }
+
 	foreach my $message (@{ $app->{'trace'} || [] }) {
-		&append_log('trace', $message);
+		&append_log('trace', $message . ' query_string: ' . $app->param->query_string);
 	}
 }
 

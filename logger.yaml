@@ -6,6 +6,7 @@ loggers:
         #1MB
         size: 1048576
         max: 6
+
 types:
     info:
         logger: file
@@ -16,6 +17,8 @@ types:
     security:
         logger: file
     debug:
+        logger: file
+    query:
         logger: file
     trace:
         logger: file

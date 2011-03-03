@@ -13,6 +13,8 @@ doc_link: http://tec.toi-planning.net/mt/log_exporter/manual
 #Localization
 l10n_class: LogExporter::L10N
 
+init_app: LogExporter::init_app
+
 tags:
     function:
         Log: $LogExporter::LogExporter::_hdlr_log
@@ -26,6 +28,7 @@ applications:
                 order: 10000
                 label: LogExporterViewMenuLabel
                 mode: log_exporter_viewer
+                permission: administer
                 view:
                     - system
                 display: 1

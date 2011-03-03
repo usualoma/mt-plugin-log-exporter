@@ -33,6 +33,10 @@ jQuery(function($) {
 			'color': '#0f0',
 			'background': '#fff'
 		},
+		'query': {
+			'color': '#ddd',
+			'background': '#222'
+		},
 		'trace': {
 			'color': '#00f',
 			'background': '#fff'
@@ -43,7 +47,7 @@ jQuery(function($) {
 	$.each(colors, function(k, v) {
 		colors_compiled['^\\[' + k + '\\]'] =
 			'<span style="background: '+ v['background'] +
-			';color:' + v['color'] + '">[' + k + ']</span>';
+			';color:' + v['color'] + '; padding: 2px; mergin: 2px;">[' + k + ']</span>';
 	});
 
 	function update() {
