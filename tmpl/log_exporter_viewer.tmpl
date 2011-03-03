@@ -47,7 +47,7 @@ jQuery(function($) {
 	$.each(colors, function(k, v) {
 		colors_compiled['^\\[' + k + '\\]'] =
 			'<span style="background: '+ v['background'] +
-			';color:' + v['color'] + '; padding: 2px; mergin: 2px;">[' + k + ']</span>';
+			';color:' + v['color'] + '; padding: 2px 4px; mergin: 2px;">[' + k + ']</span>';
 	});
 
 	function update() {

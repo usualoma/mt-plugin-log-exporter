@@ -56,6 +56,9 @@ use warnings;
 use Data::Dumper;
 use File::Spec;
 
+eval "use Term::ANSIColor";
+my $has_ansi_color = ! $@;
+
 our %types = qw(
 	info     1
 	warning  2
@@ -65,17 +68,15 @@ our %types = qw(
 );
 
 sub init_app {
-    $Data::ObjectDriver::PROFILE = 1;
-    $Data::ObjectDriver::PROFILE;
+	$Data::ObjectDriver::PROFILE = 1;
+	$Data::ObjectDriver::PROFILE;
 }
 
 sub plugin {
 	MT->component('LogExporter');
 }
 
-sub loggers {
-	my ($type) = @_;
-
+sub load_loggers {
 	my $loggers = MT->request('log_exporter_loggers');
 
 	if (! $loggers) {
@@ -86,6 +87,14 @@ sub loggers {
 		$loggers = $yaml->[0];
 		MT->request('log_exporter_loggers', $loggers);
 	}
+
+    $loggers;
+}
+
+sub loggers {
+	my ($type) = @_;
+
+	my $loggers = &load_loggers;
 
 	if (! $type) {
 		return $loggers->{'loggers'};
@@ -112,49 +121,21 @@ sub filename {
 	$filename;
 }
 
-sub log_handle {
+sub log_filename {
 	my ($type) = @_;
 
-	my $logger = &loggers($type);
+	my $logger = &loggers($type)
+		or return;
+	&filename($logger->{filename});
+}
 
-	if ($logger) {
-		my $filename = &filename($logger->{filename});
+sub log_colors {
+	my ($type) = @_;
 
-		my $handles = MT->request('log_exporter_handles') || {};
-		my $fh = $handles->{$filename};
-		if (! $fh) {
-			if (-e $filename) {
-				if (my $size = $logger->{'size'}) {
-					my $max = $logger->{'max'} || 0;
-					if ((stat($filename))[7] >= $size) {
-						my @files = sort({
-							my ($a_num) = ($a =~ m{(\d+$)});
-							my ($b_num) = ($b =~ m{(\d+$)});
-							$b_num <=> $a_num;
-						} glob($filename . '.*'));
-						foreach my $file (@files) {
-							my ($base, $num) = ($file =~ m{(.*?)(\d+$)});
+	my $loggers = &load_loggers;
 
-							$num++;
-							if ($max && $num > $max) {
-								unlink($file);
-							}
-							else {
-								print($base . $num);
-								rename($file, $base . $num);
-							}
-						}
-						rename($filename, $filename . '.1');
-					}
-				}
-			}
-
-			open($fh, '>>', $filename);
-			$handles->{$filename} = $fh;
-			MT->request('log_exporter_handles', $handles);
-		}
-
-		return $fh;
+	if (my $data = $loggers->{types}{$type}) {
+        $data->{ansi_color};
 	}
 	else {
 		return;
@@ -164,10 +145,23 @@ sub log_handle {
 sub append_log {
 	my ($type, $message) = @_;
 
-	if (my $fh = &log_handle($type)) {
+	if (my $filename = &log_filename($type)) {
 		$message ||= '';
 		$message =~ s{(\r|\n)*$}{};
-		print($fh sprintf("[%s] %s\n", $type, $message));
+
+		open(my $fh, '>>', $filename)
+			or die $!;
+
+        my $colors = &log_colors($type);
+
+		print($fh '[', $type, '] ');
+
+		print($fh color(@$colors)) if $has_ansi_color && $colors;
+        print($fh $message, "\n");
+		print($fh color('reset')) if $has_ansi_color && $colors;
+
+		close($fh)
+			or die $!;
 	}
 }
 
@@ -175,13 +169,21 @@ sub append_log {
 sub take_down {
 	my $app = MT->instance;
 
-    foreach my $query (@{ Data::ObjectDriver->profiler->query_log }) {
-        &append_log('query', $query);
-    }
+	foreach my $query (@{ Data::ObjectDriver->profiler->query_log }) {
+        next if $query =~ m/^RAMCACHE_(GET|ADD)/;
+		&append_log('query', $query);
+	}
 
 	foreach my $message (@{ $app->{'trace'} || [] }) {
 		&append_log('trace', $message . ' query_string: ' . $app->param->query_string);
 	}
+
+    # color test
+    if (0) {
+        for my $k (qw(info warning error security debug query trace)) {
+	        &append_log($k, $k);
+        }
+    }
 }
 
 sub log_post_save {
@@ -197,7 +199,7 @@ sub log_post_save {
 
 
 sub _hdlr_log {
-    my ($ctx, $args) = @_;
+	my ($ctx, $args) = @_;
 	my $name = $args->{'name'} || $args->{'var'} || '';
 	my $value = $args->{'value'} || '';
 	my $scalar = $args->{'scalar'} || '';
@@ -220,15 +222,15 @@ sub _hdlr_log {
 
 
 sub viewer {
-    my $app = shift;
+	my $app = shift;
 
 	my $loggers = &loggers;
 	my $logger  = $loggers->{(keys(%$loggers))[0]};
 	my $filename = &filename($logger->{filename});
 
-    my $server_path = $app->server_path() || "";
+	my $server_path = $app->server_path() || "";
 	my $cfg = $app->config;
-    my $cgi_path = $cfg->CGIPath;
+	my $cgi_path = $cfg->CGIPath;
 	$filename =~ s{$server_path}{$cgi_path};
 
 	MT->log($filename);
@@ -237,7 +239,7 @@ sub viewer {
 		filename => $filename,
 	);
 
-    plugin->load_tmpl('log_exporter_viewer.tmpl', \%param);
+	plugin->load_tmpl('log_exporter_viewer.tmpl', \%param);
 }
 
 1;

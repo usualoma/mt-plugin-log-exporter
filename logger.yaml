@@ -10,15 +10,36 @@ loggers:
 types:
     info:
         logger: file
+        ansi_color:
+            - green
+            - on_black
     warning:
         logger: file
+        ansi_color:
+            - yellow
+            - on_black
     error:
         logger: file
+        ansi_color:
+            - red
+            - on_black
     security:
         logger: file
+        ansi_color:
+            - magenta
+            - on_black
     debug:
         logger: file
+        ansi_color:
+            - bright_green
+            - on_black
     query:
         logger: file
+        ansi_color:
+            - blue
+            - on_black
     trace:
         logger: file
+        ansi_color:
+            - bright_magenta
+            - on_black
