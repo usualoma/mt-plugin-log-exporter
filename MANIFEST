@@ -1,4 +1,5 @@
 config.yaml
+extlib/Term/ANSIColor.pm
 lib/LogExporter.pm
 lib/LogExporter/L10N.pm
 lib/LogExporter/L10N/en_us.pm
@@ -6,3 +7,5 @@ lib/LogExporter/L10N/ja.pm
 LICENSE
 log/.exists
 logger.yaml
+README.md
+tmpl/log_exporter_viewer.tmpl
