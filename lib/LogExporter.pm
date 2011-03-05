@@ -168,7 +168,7 @@ sub take_down {
 	my $app = MT->instance;
 
 	foreach my $query (@{ Data::ObjectDriver->profiler->query_log }) {
-        next if $query =~ m/^RAMCACHE_(GET|ADD)/;
+        next if $query =~ m/^RAMCACHE_(GET|ADD|DELETE)/;
 		&append_log('query', $query);
 	}
 
