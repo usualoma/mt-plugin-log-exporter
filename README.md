@@ -13,6 +13,11 @@ Export activity log, query log and warnings
 * Upload plugin files.
 * Update permission. (e.g. chmod 777 /path/to/mt/plugins/LogExporter/log)
 
+## USAGE
+
+* Execute "tail -f /path/to/mt/plugins/LogExporter/log/mt.log"
+* Open "http://example.com/mt/mt.cgi?\_\_mode=log\_exporter\_viewer" (Should have permission to read http://example.com/mt/plugins/LogExporter/log/mt.log)
+
 ## SETTINGS
 	cat logger.yaml
 	---
@@ -63,7 +68,7 @@ Export activity log, query log and warnings
 	
 ## LICENSE
 
-Copyright (c) 2011 Taku AMANO
+Copyright (c) 2011 ToI Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
