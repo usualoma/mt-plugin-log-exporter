@@ -1,7 +1,7 @@
 #plugin information
 id: LogExporter
 name: LogExporter
-version: 0.1.1
+version: 0.1.2
 
 #about this plugin
 description: <__trans phrase="Export Movable Types Log">
