@@ -20,21 +20,6 @@
 #
 # $Id$
 
-package MT;
-use Data::Dumper;
-use B::Deparse;
-
-sub dumper {
-	my ($self) = @_;
-	$self->log(Dumper($_[1]));
-}
-
-sub c2t {
-	my ($self) = @_;
-	my $bd = B::Deparse->new;
-	$self->log($bd->coderef2text($_[1]));
-}
-
 package LE;
 use Data::Dumper;
 use B::Deparse;
@@ -58,16 +43,19 @@ use File::Spec;
 use Term::ANSIColor;
 
 our %types = qw(
-	info     1
-	warning  2
-	error    4
-	security 8
-	debug    16
+	1  info
+	2  warning
+	4  error
+	8  security
+	16 debug
 );
 
 sub init_app {
-	$Data::ObjectDriver::PROFILE = 1;
-	$Data::ObjectDriver::PROFILE;
+	my $loggers = &load_loggers;
+	if ($loggers->{types}{query}) {
+	    $Data::ObjectDriver::PROFILE = 1;
+	    $Data::ObjectDriver::PROFILE;
+    }
 }
 
 sub plugin {
@@ -124,7 +112,28 @@ sub log_filename {
 
 	my $logger = &loggers($type)
 		or return;
-	&filename($logger->{filename});
+	my $name = &filename($logger->{filename});
+
+    if (my $size = $logger->{size}) {
+        my $max  = $logger->{max} || 0;
+        if ((stat($name))[7] > $size) {
+            for my $f (reverse(sort(glob($name . '.*')))) {
+                my ($index) = ($f =~ m/(\d+)$/);
+                if ($max && $index >= $max) {
+                    unlink($f);
+                    next;
+                }
+
+                my $to = $f;
+                $to =~ s/(\d+)$/$1+1/e;
+                rename($f, $to);
+            }
+
+            rename($name, $name . '.1');
+        }
+    }
+
+    $name;
 }
 
 sub log_colors {
@@ -186,13 +195,7 @@ sub take_down {
 
 sub log_post_save {
 	my ($cb, $obj) = @_;
-
-	my $type;
-	for my $t (keys(%types)) {
-		$type = $t if $types{$t} == $obj->level;
-	}
-
-	&append_log($type, $obj->message);
+	&append_log($types{$obj->level}, $obj->message);
 }
 
 
@@ -200,10 +203,7 @@ sub _hdlr_log {
 	my ($ctx, $args) = @_;
 	my $name = $args->{'name'} || $args->{'var'} || '';
 	my $value = $args->{'value'} || '';
-	my $scalar = $args->{'scalar'} || '';
 	my $dump = $args->{'dump'};
-
-	use Data::Dumper;
 
 	if ($name) {
 		$value = $ctx->var($name);
@@ -230,8 +230,6 @@ sub viewer {
 	my $cfg = $app->config;
 	my $cgi_path = $cfg->CGIPath;
 	$filename =~ s{$server_path}{$cgi_path};
-
-	MT->log($filename);
 
 	my %param = (
 		filename => $filename,
