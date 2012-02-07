@@ -16,7 +16,9 @@ Export activity log, query log and warnings
 ## USAGE
 
 * Execute "tail -f /path/to/mt/plugins/LogExporter/log/mt.log"
-* Open "http://example.com/mt/mt.cgi?\_\_mode=log\_exporter\_viewer" (Should have permission to read http://example.com/mt/plugins/LogExporter/log/mt.log)
+* Open "http://example.com/mt/mt.cgi?&#x5f;&#x5f;mode=log&#x5f;exporter&#x5f;viewer"
+ * Should have permission to access "http://example.com/mt/plugins/LogExporter/log/mt.log".
+ * Should not set ansi color
 
 ## SETTINGS
 	cat logger.yaml
