@@ -20,19 +20,6 @@
 #
 # $Id$
 
-package LE;
-use Data::Dumper;
-use B::Deparse;
-
-sub dumper {
-	MT->instance->log(Dumper($_[1]));
-}
-
-sub c2t {
-	my $bd = B::Deparse->new;
-	MT->instance->log($bd->coderef2text($_[1]));
-}
-
 package LogExporter;
 
 use strict;
