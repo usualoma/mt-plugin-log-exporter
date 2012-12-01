@@ -1,45 +1,57 @@
 ---
 loggers:
-    file:
+    log:
         class: file
         filename: mt.log
+        #1MB
+        size: 1048576
+        max: 6
+    query:
+        class: file
+        filename: query.log
+        #1MB
+        size: 1048576
+        max: 6
+    trace:
+        class: file
+        filename: trace.log
         #1MB
         size: 1048576
         max: 6
 
 types:
     info:
-        logger: file
+        logger: log
         ansi_color:
             - green
             - on_black
     warning:
-        logger: file
+        logger: log
         ansi_color:
             - yellow
             - on_black
     error:
-        logger: file
+        logger: log
         ansi_color:
             - red
             - on_black
     security:
-        logger: file
+        logger: log
         ansi_color:
             - magenta
             - on_black
     debug:
-        logger: file
+        logger: log
         ansi_color:
             - bright_green
             - on_black
     query:
-        logger: file
+        logger: query
         ansi_color:
             - blue
             - on_black
     trace:
-        logger: file
+        logger: trace
         ansi_color:
             - bright_magenta
             - on_black
