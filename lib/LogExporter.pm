@@ -197,6 +197,7 @@ sub _hdlr_log {
 	}
 
 	if ($dump) {
+		local $Data::Dumper::Deparse = 1;
 		$value = Dumper($value);
 	}
 
